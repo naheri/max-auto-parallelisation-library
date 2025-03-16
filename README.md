@@ -1,0 +1,1 @@
+# max-auto-parallelisation-library
