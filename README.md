@@ -1,2 +1,2 @@
-# max-auto-parallelisation-library
-# max-auto-parallelisation-library
+# Librairie en Python pour automatiser la parallélisation maximale de systèmes de tâches.
+

@@ -1,1 +1,1 @@
-from .module1 import addition
+from .maxpar import addition

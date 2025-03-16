@@ -1,0 +1,44 @@
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environnement virtuel
+venv/
+.env/
+*.venv
+
+# Fichiers de logs et temporaires
+logs/
+*.log
+*.tmp
+*.swp
+.DS_Store
+
+# Configuration d'éditeurs de code
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Dépendances installées
+pip-log.txt
+pip-delete-this-directory.txt
+*.egg-info/
+dist/
+build/
+
+# Fichiers liés à pytest
+.cache/
+pytest_cache/
+htmlcov/
+
+# Artifacts et fichiers de packaging
+*.egg
+*.wheel
+MANIFEST
+
+# Clés SSH et informations sensibles
+*.pem
+*.key
+*.crt
+.env
