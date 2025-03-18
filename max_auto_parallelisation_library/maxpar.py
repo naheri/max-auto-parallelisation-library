@@ -20,3 +20,15 @@ def runT2():
 def runTsomme():
     global X, Y, Z  
     Z = X + Y
+
+
+class TaskSystem:
+    def __init__(self, tasks, precedence):
+        """
+        Task system constructor
+        """
+        self.tasks = tasks
+        self.task_map = {task.name : task for task in tasks} # associe chaque nom de tâche à une tâche
+        self.precedence = precedence.copy() # sinon ça modifie le dictionnaire original aussi
+
+        
