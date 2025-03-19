@@ -38,7 +38,7 @@ class TaskSystem:
         """
         Initialise le système de tâches avec :
         """
-        self.tasks = {task.name: task for task in tasks}
+        self.tasks = {task.name: task for task in tasks} # sous forme de dictionnaire, on  récupére par le nom direct 
         self.precedence = precedence.copy()
 
     def getDependencies(self, nomTache):
