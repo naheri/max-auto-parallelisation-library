@@ -150,7 +150,7 @@ class TaskSystem:
         Returns:
             True si target est accessible depuis start, False sinon.
         """
-        # Utiliser BFS pour trouver un chemin
+        
         visited = set()
         queue = [start]
         
