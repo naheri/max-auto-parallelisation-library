@@ -1,3 +1,6 @@
+import concurrent.futures
+from max_auto_parallelisation_library.validators import TaskSystemValidationError, TaskSystemValidator
+
 class Task:
     def __init__(self, name="", reads=None, writes=None, run=None):
         self.name = name
@@ -33,6 +36,9 @@ class Task:
 
 class TaskSystem:
     def __init__(self, tasks, precedence):
+
+        TaskSystemValidator.validate_system(tasks, precedence)
+
         self.tasks = tasks
         self.task_map = {task.name: task for task in tasks}
         self.precedence = precedence.copy()
@@ -167,68 +173,9 @@ class TaskSystem:
                         queue.append(next_task)
         
         return False
-
-    def runSeq(self):
-        """
-        Exécuter les tâches du système de façon séquentielle en respectant l'ordre imposé par la relation de précédence.
-        Utilise un tri topologique pour déterminer l'ordre d'exécution.
-        """
-        visited = set()
-        temp_visited = set()
-        order = []
-        
-        def visit(node):
-            if node in temp_visited:
-                raise ValueError(f"Cycle détecté dans le graphe de précédence impliquant {node}")
-            if node not in visited:
-                temp_visited.add(node)
-                for neighbor in self.precedence.get(node, []):
-                    visit(neighbor)
-                temp_visited.remove(node)
-                visited.add(node)
-                order.append(node)
-        
-        for task_name in self.precedence:
-            if task_name not in visited:
-                visit(task_name)
-        
-        # Inverser l'ordre 
-        execution_order = list(reversed(order))
-        
-        for task_name in execution_order:
-            task = self.task_map.get(task_name)
-            if task and task.run:
-                task.run()
-
-    def run(self):
-        """
-        Exécuter les tâches du système en parallélisant celles qui peuvent être parallélisées 
-        selon la spécification du parallélisme maximal.
-        Utilise la bibliothèque concurrent.futures pour la parallélisation.
-        """
-        import concurrent.futures
-        
-        # Effectuer un tri topologique pour déterminer les niveaux d'exécution
-        # Chaque niveau contient des tâches qui peuvent être exécutées en parallèle
-        levels = self._compute_execution_levels()
-        
-        # Exécuter chaque niveau en parallèle
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            for level in levels:
-                futures = []
-                for task_name in level:
-                    task = self.task_map.get(task_name)
-                    if task and task.run:
-                        future = executor.submit(task.run)
-                        futures.append(future)
-                
-                # Attendre que toutes les tâches du niveau soient terminées avant de passer au niveau suivant
-                for future in futures:
-                    future.result()  # Cela bloquera jusqu'à ce que la tâche soit terminée
-
     def _compute_execution_levels(self):
         """
-        Calcule les niveaux d'exécution pour les tâches.
+        Calculate levels of tasks
         Chaque niveau contient des tâches qui peuvent être exécutées en parallèle.
         
         Returns:
@@ -265,5 +212,53 @@ class TaskSystem:
                             ready_tasks.add(task_name)
         
         return levels
+    def runSeq(self):
+        """
+        Exécute les tâches de façon niveau par niveau (séquentielle entre niveaux),
+        mais parallélise les tâches qui sont au même niveau.
+        """
+        
+        # Calculer les niveaux d'exécution pour le système actuel (sans appliquer le parallélisme maximal)
+        levels = self._compute_execution_levels()
+        
+        # Exécuter chaque niveau en parallèle
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for level in levels:
+                futures = []
+                for task_name in level:
+                    task = self.task_map.get(task_name)
+                    if task and task.run:
+                        future = executor.submit(task.run)
+                        futures.append(future)
+                
+                # Attendre que toutes les tâches du niveau soient terminées avant de passer au niveau suivant
+                for future in futures:
+                    future.result()
+
+    def run(self):
+        """
+        Applique d'abord l'algorithme de parallélisme maximal, puis exécute les tâches
+        en parallélisant celles qui peuvent l'être selon ce système de parallélisme maximal.
+        """
+        
+        # D'abord, générer le système à parallélisme maximal
+        max_parallel_system = self.create_max_parallel_system()
+        
+        # Calculer les niveaux d'exécution pour ce système
+        levels = max_parallel_system._compute_execution_levels()
+        
+        # Exécuter chaque niveau en parallèle
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for level in levels:
+                futures = []
+                for task_name in level:
+                    task = self.task_map.get(task_name)
+                    if task and task.run:
+                        future = executor.submit(task.run)
+                        futures.append(future)
+                
+                # Attendre que toutes les tâches du niveau soient terminées avant de passer au niveau suivant
+                for future in futures:
+                    future.result()
 
     
