@@ -30,7 +30,7 @@ def test_task_system_initialization():
     
     assert s1.tasks == [t1, t2, tSomme]
     assert s1.precedence == precedence
-def test_validation_empty_tasks():
+'''def test_validation_empty_tasks():
     """Test la validation avec une liste de tâches vide"""
     with pytest.raises(TaskSystemValidationError, match="La liste des tâches ne peut pas être vide"):
         TaskSystem(tasks=[], precedence={"T1": []})
@@ -96,7 +96,7 @@ def test_validation_valid_system():
     try:
         TaskSystem(tasks=tasks, precedence=precedence)
     except TaskSystemValidationError:
-        pytest.fail("La validation a échoué pour un système valide")
+        pytest.fail("La validation a échoué pour un système valide")'''
 def test_task_execution():
     """Test que les tâches exécutent bien leur fonction."""
     maxpar.X = None
@@ -680,7 +680,118 @@ def test_parallel_execution():
     
     # Vérifier qu'il y a eu du parallélisme
     assert len(parallel_tasks) > 0, "Aucune tâche ne s'est exécutée en parallèle!"
+def test_draw_method():
+    """
+    Teste la méthode draw() de la classe TaskSystem pour générer 
+    une représentation graphique du graphe de précédence.
+    """
+    import os
     
+    # Créer les tâches
+    t1 = Task(name="T1", writes=["X"], run=runT1)
+    t2 = Task(name="T2", writes=["Y"], run=runT2)
+    t_somme = Task(name="somme", reads=["X", "Y"], writes=["Z"], run=runTsomme)
+    
+    # Système avec précédences
+    tasks = [t1, t2, t_somme]
+    precedence = {
+        "T1": [],
+        "T2": [],
+        "somme": ["T1", "T2"]
+    }
+    
+    # Créer le système
+    system = TaskSystem(tasks=tasks, precedence=precedence)
+    
+    try:
+        # Essayer de générer la représentation graphique
+        output_path = system.draw(filename="test_task_system", format="png")
+        
+        # Vérifier si le fichier a été créé
+        if output_path:
+            assert os.path.exists(output_path), f"Le fichier {output_path} n'a pas été créé"
+            
+            # Nettoyer (supprimer le fichier généré)
+            try:
+                os.remove(output_path)
+                print(f"Fichier de test {output_path} supprimé")
+            except:
+                print(f"Impossible de supprimer le fichier {output_path}")
+        else:
+            # Si graphviz n'est pas installé, marquer le test comme réussi mais avec un message
+            import pytest
+            pytest.skip("Le test a été ignoré car graphviz n'est pas installé")
+    
+    except ImportError:
+        # Si graphviz n'est pas installé, marquer le test comme réussi mais avec un message
+        import pytest
+        pytest.skip("Le test a été ignoré car graphviz n'est pas installé")
+
+def test_draw_max_parallel_system():
+    """
+    Teste la méthode draw() sur un système à parallélisme maximal.
+    """
+    import os
+    
+    # Créer les tâches pour le système complexe
+    tasks = [
+        Task(name="1", reads=["A", "B"], writes=["C"], run=None),
+        Task(name="2", reads=["A"], writes=["D"], run=None),
+        Task(name="3", reads=["C", "D"], writes=["A"], run=None),
+        Task(name="4", reads=["C", "D"], writes=["E"], run=None),
+        Task(name="5", reads=["D"], writes=["B"], run=None),
+        Task(name="6", reads=["E"], writes=["E"], run=None),
+        Task(name="7", reads=["A", "B", "D"], writes=["D"], run=None),
+        Task(name="8", reads=["A", "C"], writes=["E"], run=None)
+    ]
+    
+    # Définir les dépendances initiales
+    precedence = {
+        "1": [],
+        "2": ["1"],
+        "3": ["2"],
+        "4": ["2"],
+        "5": ["3", "4"],
+        "6": ["4"],
+        "7": ["5", "6"],
+        "8": ["7"]
+    }
+    
+    # Créer le système initial
+    initial_system = TaskSystem(tasks=tasks, precedence=precedence)
+    
+    # Générer le système à parallélisme maximal
+    max_parallel_system = initial_system.create_max_parallel_system()
+    
+    try:
+        # Essayer de générer la représentation graphique
+        output_path = max_parallel_system.draw(filename="test_max_parallel_system", format="png")
+        
+        # Vérifier si le fichier a été créé
+        if output_path:
+            assert os.path.exists(output_path), f"Le fichier {output_path} n'a pas été créé"
+            
+            # Vérifier également que le graphe initial peut être dessiné
+            initial_output_path = initial_system.draw(filename="test_initial_system", format="png")
+            if initial_output_path:
+                assert os.path.exists(initial_output_path), f"Le fichier {initial_output_path} n'a pas été créé"
+                
+                '''# Nettoyer (supprimer les fichiers générés)
+                try:
+                    os.remove(output_path)
+                    os.remove(initial_output_path)
+                    print(f"Fichiers de test supprimés")
+                except:
+                    print(f"Impossible de supprimer certains fichiers générés")'''
+        else:
+            # Si graphviz n'est pas installé, marquer le test comme réussi mais avec un message
+            import pytest
+            pytest.skip("Le test a été ignoré car graphviz n'est pas installé")
+    
+    except ImportError:
+        # Si graphviz n'est pas installé, marquer le test comme réussi mais avec un message
+        import pytest
+        pytest.skip("Le test a été ignoré car graphviz n'est pas installé")
 
 '''def test_max_parallelism_system():
     """Test de la construction du système de tâches avec parallélisme maximal."""

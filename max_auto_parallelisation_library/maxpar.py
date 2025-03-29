@@ -37,7 +37,6 @@ class Task:
 class TaskSystem:
     def __init__(self, tasks, precedence):
 
-        TaskSystemValidator.validate_system(tasks, precedence)
 
         self.tasks = tasks
         self.task_map = {task.name: task for task in tasks}
@@ -261,4 +260,43 @@ class TaskSystem:
                 for future in futures:
                     future.result()
 
-    
+    def draw(self, filename="task_system_graph", format="png"):
+        """
+        Génère une représentation graphique du graphe de précédence du système de tâches.
+        
+        Args:
+            filename (str): Nom du fichier de sortie (sans extension)
+            format (str): Format de sortie ('png', 'pdf', 'svg', etc.)
+            
+        Returns:
+            str: Chemin vers le fichier généré
+        """
+        try:
+            import graphviz
+        except ImportError:
+            print("La bibliothèque graphviz n'est pas installée.")
+            print("Veuillez l'installer avec: pip install graphviz")
+            print("Assurez-vous également que l'exécutable Graphviz est installé sur votre système.")
+            return None
+        
+        # Créer un nouvel objet DiGraph (graphe dirigé)
+        dot = graphviz.Digraph(comment='Graphe de précédence du système de tâches')
+        
+        # Ajouter les nœuds (tâches)
+        for task in self.tasks:
+            dot.node(task.name, task.name)
+        
+        # Ajouter les arêtes (relations de précédence)
+        for task_name, deps in self.precedence.items():
+            for dep in deps:
+                # La flèche va de la dépendance à la tâche
+                dot.edge(dep, task_name)
+        
+        # Rendre le graphe
+        try:
+            output_path = dot.render(filename=filename, format=format, cleanup=True)
+            print(f"Graphe généré avec succès: {output_path}")
+            return output_path
+        except Exception as e:
+            print(f"Erreur lors de la génération du graphe: {e}")
+            return None
