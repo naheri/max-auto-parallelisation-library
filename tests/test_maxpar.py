@@ -220,9 +220,11 @@ def test_create_max_parallel_system():
     }
     
     initial_system = TaskSystem(tasks=tasks, precedence=precedence)
-    
+    # draw the initial system
+    initial_system.draw("task_system_initial")
     max_parallel_system = initial_system.create_max_parallel_system()
-    
+    # draw the max parallel system
+    max_parallel_system.draw("task_system_max_parallel")
     actual_precedence_max = {task: set(deps) for task, deps in max_parallel_system.precedence.items()}
     
     assert actual_precedence_max == expected_precedence_max
@@ -542,7 +544,6 @@ def test_parallel_execution():
     initial_system = TaskSystem(tasks=tasks, precedence=precedence)
 
     max_parallel_system = initial_system.create_max_parallel_system()
-
     # convert lists to sets for printing
     max_precedence = {task: set(deps) for task, deps in max_parallel_system.precedence.items()}
 
@@ -625,9 +626,14 @@ def test_parallel_execution():
 
     assert parallel_tasks, "Aucune tâche ne s'est exécutée en parallèle!"
 def test_draw_method():
-    """Tests the TaskSystem.draw() method for generating a graphical representation."""
+    """Tests the visualization of task system."""
     import os
+    from pathlib import Path
     
+    # Define expected image path
+    image_path = Path("/Users/naher/Documents/max_auto_parallelisation/images/task_system")
+    
+    # Create a simple task system
     t1 = Task(name="T1", writes=["X"], run=runT1)
     t2 = Task(name="T2", writes=["Y"], run=runT2)
     t_somme = Task(name="somme", reads=["X", "Y"], writes=["Z"], run=runTsomme)
@@ -642,18 +648,17 @@ def test_draw_method():
     system = TaskSystem(tasks=tasks, precedence=precedence)
     
     try:
-        output_path = system.draw(filename="test_task_system", format="png")
+        output_path = system.draw()
+        
         if not output_path:
             pytest.skip("Test skipped: graphviz is not installed")
-            
-        assert os.path.exists(output_path), f"File {output_path} was not created"
         
-        try:
-            os.remove(output_path)
-            print(f"Test file {output_path} deleted")
-        except:
-            print(f"Could not delete file {output_path}")
-    
+        # Verify file exists and has content
+        assert os.path.exists(output_path), f"File {output_path} was not created"
+        assert os.path.getsize(output_path) > 0, f"File {output_path} is empty"
+        
+        print(f"Graph image generated successfully at: {output_path}")
+        
     except ImportError:
         pytest.skip("Test skipped: graphviz is not installed")
 

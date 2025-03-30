@@ -42,3 +42,7 @@ MANIFEST
 *.key
 *.crt
 .env
+
+# Generated images
+docs/images/*
+!docs/images/.gitkeep

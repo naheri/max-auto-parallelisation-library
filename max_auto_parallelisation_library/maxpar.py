@@ -2,6 +2,8 @@ import concurrent.futures
 from max_auto_parallelisation_library.validators import TaskSystemValidationError, TaskSystemValidator
 import time
 import copy
+import graphviz
+from pathlib import Path
   
 class Task:
     def __init__(self, name="", reads=None, writes=None, run=None):
@@ -224,42 +226,42 @@ class TaskSystem:
                 for future in futures:
                     future.result()
 
-    def draw(self, filename="task_system_graph", format="png"):
-        """
-        Generates a graphical representation of the precedence graph of the task system.
+    def draw(self, filename="task_system", format="png"):
+        """Generates a graphical representation of the task system.
         
         Args:
-            filename (str): Output filename (without extension)
-            format (str): Output format ('png', 'pdf', 'svg', etc.)
+            filename (str): Path where to save the output file
+            format (str): Output format (png, pdf, etc.)
             
         Returns:
-            str: Path to the generated file
+            str: Path to the generated file or None if graphviz is not installed
         """
-        try:
-            import graphviz
-        except ImportError:
-            print("La bibliothèque graphviz n'est pas installée.")
-            print("Veuillez l'installer avec: pip install graphviz")
-            print("Assurez-vous également que l'exécutable Graphviz est installé sur votre système.")
-            return None
+    
+        # Ensure images directory exists
+        images_dir = Path("/Users/naher/Documents/max_auto_parallelisation/images")
+        images_dir.mkdir(parents=True, exist_ok=True)
         
-        dot = graphviz.Digraph(comment='Graphe de précédence du système de tâches')
+        # Create graph
+        dot = graphviz.Digraph(comment='Task System')
         
+        # Add nodes
         for task in self.tasks:
-            dot.node(task.name, task.name)
+            label = f"{task.name}\nReads: {','.join(task.reads)}\nWrites: {','.join(task.writes)}"
+            dot.node(task.name, label)
         
-        for task_name, deps in self.precedence.items():
+        # Add edges
+        for task, deps in self.precedence.items():
             for dep in deps:
-                dot.edge(dep, task_name)
+                dot.edge(dep, task)
         
-        try:
-            output_path = dot.render(filename=filename, format=format, cleanup=True)
-            print(f"Graphe généré avec succès: {output_path}")
-            return output_path
-        except Exception as e:
-            print(f"Erreur lors de la génération du graphe: {e}")
-            return None
-
+        # Set full output path
+        full_path = images_dir / filename
+        
+        # Render and save
+        output_path = dot.render(filename=str(full_path), format=format, cleanup=True)
+        
+        print(f"Graph generated at: {output_path}")
+        return output_path
     def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
         """
         Compares sequential and parallel execution times of the task system.
