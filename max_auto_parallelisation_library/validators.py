@@ -22,19 +22,16 @@ class TaskSystemValidator:
         """
         errors = []
         
-        # Validation des tâches
         try:
             TaskSystemValidator._validate_tasks(tasks)
         except TaskSystemValidationError as e:
             errors.append(str(e))
             
-        # Validation du graphe de précédence
         try:
             TaskSystemValidator._validate_precedence_graph(tasks, precedence)
         except TaskSystemValidationError as e:
             errors.append(str(e))
             
-        # Validation des cycles
         try:
             TaskSystemValidator._check_cycles(precedence)
         except TaskSystemValidationError as e:
@@ -55,7 +52,7 @@ class TaskSystemValidator:
         if not tasks:
             raise TaskSystemValidationError("La liste des tâches ne peut pas être vide")
             
-        # Vérification des noms dupliqués
+
         task_names = [task.name for task in tasks]
         duplicates = {name for name in task_names if task_names.count(name) > 1}
         if duplicates:
@@ -63,7 +60,7 @@ class TaskSystemValidator:
                 f"Noms de tâches dupliqués détectés: {', '.join(duplicates)}"
             )
             
-        # Vérification des attributs de chaque tâche
+        # verification of task attributes
         for task in tasks:
             if not task.name:
                 raise TaskSystemValidationError("Une tâche doit avoir un nom")
@@ -86,14 +83,12 @@ class TaskSystemValidator:
         """
         task_names = {task.name for task in tasks}
         
-        # Vérification des tâches manquantes dans le graphe
         missing_in_precedence = task_names - set(precedence.keys())
         if missing_in_precedence:
             raise TaskSystemValidationError(
                 f"Tâches manquantes dans le graphe de précédence: {', '.join(missing_in_precedence)}"
             )
             
-        # Vérification des références invalides dans les dépendances
         for task_name, deps in precedence.items():
             if task_name not in task_names:
                 raise TaskSystemValidationError(
@@ -108,13 +103,12 @@ class TaskSystemValidator:
 
     @staticmethod
     def _check_cycles(precedence):
-        """Détecte les cycles dans le graphe de précédence.
-        
-        Utilise l'algorithme de détection de cycle par DFS.
+        """
+        Detect cycles in the precedence graph using a depth-first search (DFS) approach.
         """
         visited = set()
         temp_visited = set()
-        
+
         def detect_cycle(node):
             if node in temp_visited:
                 cycle_path = [node]
