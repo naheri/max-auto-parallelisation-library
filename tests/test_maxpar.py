@@ -414,7 +414,6 @@ def test_parallel_execution():
 
         with state_mutex:
             local_state = state.copy()
-            # Vérifier que C et D ne sont pas None
             if local_state['C'] is not None and local_state['D'] is not None:
                 local_state['A'] = local_state['C'] + local_state['D']
             else:
@@ -543,14 +542,14 @@ def test_parallel_execution():
         for i, level in enumerate(execution_levels):
             print(f"Level {i+1}: {level}")
 
-    # Suivre l'ordre d'exécution
+    # track execution order
     execution_order = []
     execution_mutex = threading.Lock()  # sémaphore
 
-    # Remplacer temporairement les fonctions run pour suivre l'ordre d'exécution
+    # replace original task run function with a tracking function
     original_task_run = {}
 
-    # Fonction de création d'une fonction de suivi pour chaque tâche
+    # create a tracking function for each task
     def create_tracking_function(task_name, original_function):
         def tracking_function():
             result = original_function()

@@ -88,7 +88,6 @@ class TaskSystem:
                             max_precedence[task_j.name].add(task_i.name)
 
         self._eliminate_redundant_edges(max_precedence)
-        # return
         return TaskSystem(
             tasks=self.tasks.copy(),
             precedence={k: list(v) for k, v in max_precedence.items()},
@@ -209,7 +208,7 @@ class TaskSystem:
         max_parallel_system = self.create_max_parallel_system()
         
         levels = max_parallel_system._compute_execution_levels()
-        
+        # Execute the tasks level by level (sequential between levels)
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for level in levels:
                 futures = []
@@ -254,100 +253,6 @@ class TaskSystem:
         
         print(f"Graph generated at: {output_path}")
         return output_path
-    '''def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
-        """
-        Compares sequential and parallel execution times of the task system.
-        
-        Args:
-            num_runs: Number of executions to calculate average times
-            warmup_runs: Number of preliminary executions to "warm up" the cache
-            verbose: If True, displays detailed information
-            
-        Returns:
-            A dictionary containing average times and speedup
-        """
-        
-        if verbose:
-            print(f"Exécution de {warmup_runs} tests préliminaires pour réchauffer le cache...")
-        
-        system_copy = copy.deepcopy(self)
-        
-        max_parallel_system = system_copy.create_max_parallel_system()
-        
-        for i in range(warmup_runs):
-            if verbose:
-                print(f"Test préliminaire {i+1}/{warmup_runs}...")
-            system_copy.runSeq()
-            max_parallel_system.run()
-        
-        if verbose:
-            print(f"\nMesure du temps d'exécution séquentielle ({num_runs} exécutions)...")
-        
-        seq_times = []
-        for i in range(num_runs):
-            if verbose:
-                print(f"Exécution séquentielle {i+1}/{num_runs}...")
-            start_time = time.time()
-            system_copy.runSeq()
-            end_time = time.time()
-            execution_time = end_time - start_time
-            seq_times.append(execution_time)
-            if verbose:
-                print(f"Temps: {execution_time:.6f} secondes")
-        
-        mean_seq_time = sum(seq_times) / len(seq_times)
-        
-        if len(seq_times) > 1:
-            seq_std_dev = (sum((t - mean_seq_time) ** 2 for t in seq_times) / len(seq_times)) ** 0.5
-        else:
-            seq_std_dev = 0
-        
-        if verbose:
-            print(f"\nMesure du temps d'exécution parallèle ({num_runs} exécutions)...")
-        
-        par_times = []
-        for i in range(num_runs):
-            if verbose:
-                print(f"Exécution parallèle {i+1}/{num_runs}...")
-            start_time = time.time()
-            max_parallel_system.run()
-            end_time = time.time()
-            execution_time = end_time - start_time
-            par_times.append(execution_time)
-            if verbose:
-                print(f"Temps: {execution_time:.6f} secondes")
-        
-        mean_par_time = sum(par_times) / len(par_times)
-        
-        if len(par_times) > 1:
-            par_std_dev = (sum((t - mean_par_time) ** 2 for t in par_times) / len(par_times)) ** 0.5
-        else:
-            par_std_dev = 0
-        
-        speedup = mean_seq_time / mean_par_time if mean_par_time > 0 else float('inf')
-        
-        if verbose:
-            print("\n===== RÉSULTATS DE LA COMPARAISON =====")
-            print(f"Temps moyen d'exécution séquentielle: {mean_seq_time:.6f} secondes (écart-type: {seq_std_dev:.6f})")
-            print(f"Temps moyen d'exécution parallèle:    {mean_par_time:.6f} secondes (écart-type: {par_std_dev:.6f})")
-            print(f"Speedup (séquentiel/parallèle):       {speedup:.2f}x")
-            
-            if speedup > 1.1:
-                print("Conclusion: L'exécution parallèle est SIGNIFICATIVEMENT PLUS RAPIDE")
-            elif speedup >= 0.9:
-                print("Conclusion: Peu de différence entre exécution parallèle et séquentielle")
-            else:
-                print("Conclusion: L'exécution séquentielle est plus rapide (overhead du parallélisme)")
-        
-        return {
-            "sequential_mean_time": mean_seq_time,
-            "sequential_std_dev": seq_std_dev,
-            "parallel_mean_time": mean_par_time,
-            "parallel_std_dev": par_std_dev,
-            "speedup": speedup,
-            "sequential_times": seq_times,
-            "parallel_times": par_times
-        }'''
     def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
         '''
         Compares sequential and parallel execution times of the task system.
