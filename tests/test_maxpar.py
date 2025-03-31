@@ -139,6 +139,43 @@ def test_draw():
 
 
 
+# test de fonction 2.6 
+def test_detTestRnd():
+    """
+    Teste la méthode detTestRnd() pour vérifier que le système de tâches est déterministe.
+    Pour ce test, aucune tâche ne modifie les variables globales, donc l'état initial doit rester inchangé.
+    """
+    # Déclaration et initialisation des variables globales
+    global X, Y, Z
+    X = 0
+    Y = 0
+    Z = 0
+
+    # Fonction dummy qui ne fait rien (les variables globales ne seront pas modifiées)
+    def fonction_inutile():
+        pass
+
+    # Création de deux tâches simples utilisant la fonction dummy
+    t1 = Task(name="T1", run=fonction_inutile)
+    t2 = Task(name="T2", run=fonction_inutile)
+    
+    # Définition d'une dépendance simple : T2 dépend de T1
+    tasks = [t1, t2]
+    precedence = {"T1": [], "T2": ["T1"]}
+    
+    # Création du système de tâches
+    systeme = TaskSystem(tasks=tasks, precedence=precedence)
+    
+    # Appeler la méthode detTestRnd en passant globals(), la liste des variables à tester et le nombre d'exécutions
+    resultat = systeme.detTestRnd(globals(), cles=["X", "Y", "Z"], nb_exec=5)
+    
+    # Afficher le résultat dans le terminal
+    print("\nSystème déterministe :", resultat)
+    
+    # Comme aucune tâche ne modifie X, Y, Z, le système doit être déterministe (résultat True)
+    assert resultat, "Le système devrait être déterministe pour ce jeu de valeurs initiales.
+
+
 
 
 
