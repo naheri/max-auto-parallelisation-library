@@ -172,5 +172,60 @@ def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
         "sequential_mean_time": avg_seq,
         "parallel_mean_time": avg_par,
         "speedup": speedup
+
+
+# 2.6 solutions 
+
+
+        def tester_determinisme(self, dico_globaux, cles=["X", "Y", "Z"], nb_exec=5):
+        """
+        Teste si le système de tâches est déterministe en l'exécutant plusieurs fois
+        avec le même état initial pour les variables globales spécifiées.
+        
+        Args:
+            dico_globaux (dict): Le dictionnaire des variables globales (ex. obtenu avec globals()).
+            cles (list): Liste des noms de variables à tester (ex. ["X", "Y", "Z"]).
+            nb_exec (int): Nombre d'exécutions à réaliser.
+        
+        Returns:
+            bool: True si toutes les exécutions donnent exactement le même état final pour les variables testées,
+                  False sinon.
+        """
+        # Sauvegarder l'état initial des variables à tester
+        # On crée un dictionnaire 'etat_initial' avec pour chaque clé la valeur actuelle dans dico_globaux
+        etat_initial = {cle: dico_globaux.get(cle) for cle in cles}
+
+        # Initialiser une liste pour stocker l'état final obtenu après chaque exécution
+        etats_obtenus = []
+
+        # Boucle pour exécuter le système nb_exec fois
+        for i in range(nb_exec):
+            # Réinitialiser les variables globales à leur état initial
+            # Pour chaque clé (par exemple "X", "Y", "Z") on remet la valeur enregistrée dans etat_initial
+            for cle, valeur in etat_initial.items():
+                dico_globaux[cle] = valeur  # Réinitialisation
+
+            # Exécuter le système de tâches
+            # Ici, on utilise self.run() pour exécuter le système en mode parallèle
+            self.run()
+
+            # Après l'exécution, on récupère l'état final des variables testées dans un nouveau dictionnaire
+            etat_courant = {cle: dico_globaux.get(cle) for cle in cles}
+            # Ajouter cet état à la liste des états obtenus
+            etats_obtenus.append(etat_courant)
+
+            # Détail de la boucle :
+            # - La boucle 'for i in range(nb_exec)' répète l'exécution du système nb_exec fois.
+            # - Avant chaque exécution, on réinitialise les variables globales (X, Y, Z) à leurs valeurs initiales.
+            # - Après l'exécution, on capture les valeurs finales de ces variables et on les stocke dans la liste 'etats_obtenus'.
+
+        # Comparer tous les états obtenus pour vérifier que tous sont identiques
+        # La fonction all() retourne True si chaque état dans 'etats_obtenus' est égal au premier état obtenu
+        deterministe = all(etat == etats_obtenus[0] for etat in etats_obtenus)
+
+        # Retourner le résultat du test : True si le système est déterministe, False sinon
+        return deterministe
+
+
     }
 
