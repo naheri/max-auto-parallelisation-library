@@ -178,6 +178,92 @@ def test_detTestRnd():
 
 
 
+# test derniére version pour systeme deter 
+
+def test_determinisme_systeme():
+    """
+    Teste que le système de tâches est déterministe.
+    Ici, aucune tâche ne modifie les variables globales X, Y et Z.
+    On s'attend donc à ce que la méthode detTestRnd retourne True.
+    """
+    # Déclaration et initialisation des variables globales
+    global X, Y, Z
+    X = 0
+    Y = 0
+    Z = 0
+
+    # Fonction stable qui ne modifie pas les variables globales.
+    def fonction_stable():
+        pass  # Ne fait rien
+
+    # Création de deux tâches qui exécutent la fonction stable.
+    # Puisque ces fonctions ne modifient rien, l'état initial reste le même à chaque exécution.
+    t1 = Task(name="T1", run=fonction_stable)
+    t2 = Task(name="T2", run=fonction_stable)
+
+    # Liste des tâches et définition d'une dépendance simple : T2 dépend de T1.
+    tasks = [t1, t2]
+    precedence = {"T1": [], "T2": ["T1"]}
+
+    # Création du système de tâches
+    systeme = TaskSystem(tasks=tasks, precedence=precedence)
+
+    # Appeler la méthode detTestRnd en passant globals(), tester les variables ["X", "Y", "Z"]
+    # et en réalisant 5 exécutions.
+    resultat = systeme.detTestRnd(globals(), cles=["X", "Y", "Z"], nb_exec=5)
+    print("\nSystème déterministe :", resultat)
+
+    # On s'attend à ce que le système soit déterministe, donc resultat doit être True.
+    assert resultat, "Le système devrait être déterministe pour ce jeu de valeurs initiales."
+
+
+
+
+
+# test derniere version pour systeme non determini 
+
+def test_non_determinisme():
+    """
+    Teste que le système de tâches n'est pas déterministe.
+    Ici, la tâche T1 modifie la variable globale X de manière aléatoire,
+    ce qui fait varier l'état final entre les exécutions.
+    """
+    import random
+    global X, Y, Z
+    # Initialisation des variables globales
+    X = 0
+    Y = 0
+    Z = 0
+
+    # Fonction non déterministe : modifie X avec un nombre aléatoire
+    def fonction_non_det():
+        global X
+        X = random.randint(1, 100)
+
+    # Fonction dummy qui ne fait rien
+    def fonction_dummy():
+        pass
+
+    # Création de deux tâches
+    t1 = Task(name="T1", run=fonction_non_det)  # Cette tâche modifie X aléatoirement
+    t2 = Task(name="T2", run=fonction_dummy)      # Tâche qui ne modifie rien
+
+    # Définir une dépendance simple : T2 dépend de T1
+    tasks = [t1, t2]
+    precedence = {"T1": [], "T2": ["T1"]}
+
+    # Création du système de tâches
+    systeme = TaskSystem(tasks=tasks, precedence=precedence)
+
+    # Tester le déterminisme en passant globals(), tester uniquement la variable "X"
+    resultat = systeme.detTestRnd(globals(), cles=["X"], nb_exec=5)
+    print("\nSystème déterministe (attendu : False) :", resultat)
+
+    # Le système ne devrait pas être déterministe car X est modifié aléatoirement
+    assert not resultat, "Le système ne devrait pas être déterministe car X est modifié aléatoirement."
+
+
+
 
 
 
