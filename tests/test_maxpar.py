@@ -92,5 +92,57 @@ def test_draw():
     except Exception as e:
         pytest.fail(f"La méthode draw() a levé une exception inattendue : {e}")
 
+
+# test de solution de 2.7 
+ def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
+        """
+        Compare le temps d'exécution séquentiel (runSeq()) et parallèle (run())
+        en utilisant le module timeit pour une mesure précise.
+        
+        Args:
+            num_runs (int): nombre de répétitions pour la mesure.
+            warmup_runs (int): nombre d'exécutions préliminaires pour stabiliser l'exécution.
+            verbose (bool): si True, affiche les résultats détaillés.
+            
+        Returns:
+            dict: contenant le temps moyen séquentiel, parallèle et le speedup.
+        """
+        import timeit
+
+        # Phase de réchauffement : exécuter plusieurs fois pour préparer les caches
+        for _ in range(warmup_runs):
+            self.runSeq()
+            self.run()
+
+        # Mesurer le temps total pour num_runs exécutions en mode séquentiel
+        seq_total_time = timeit.timeit(self.runSeq, number=num_runs)
+        # Mesurer le temps total pour num_runs exécutions en mode parallèle
+        par_total_time = timeit.timeit(self.run, number=num_runs)
+
+        # Calcul des moyennes
+        avg_seq = seq_total_time / num_runs
+        avg_par = par_total_time / num_runs
+        # Calcul du speedup
+        speedup = avg_seq / avg_par if avg_par > 0 else float('inf')
+
+        if verbose:
+            print("\n===== RÉSULTATS (timeit) =====")
+            print(f"Temps moyen séquentiel: {avg_seq:.6f} secondes")
+            print(f"Temps moyen parallèle:    {avg_par:.6f} secondes")
+            print(f"Speedup: {speedup:.2f}x")
+
+        return {
+            "sequential_mean_time": avg_seq,
+            "parallel_mean_time": avg_par,
+            "speedup": speedup
+        }
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     pytest.main()
