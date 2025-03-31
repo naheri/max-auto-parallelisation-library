@@ -229,3 +229,43 @@ def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
 
     }
 
+
+# derniére versionnnnnnnnnnnnnnnnn
+
+
+
+def detTestRnd(self, dico_globaux, cles=["X"], nb_exec=5):
+        """
+        Teste le déterminisme du système en l'exécutant nb_exec fois avec le même état initial
+        pour les variables globales spécifiées.
+        
+        Args:
+            dico_globaux (dict): Le dictionnaire des variables globales (ex. obtenu avec globals()).
+            cles (list): Liste des noms des variables globales à tester (par exemple ["X"]).
+            nb_exec (int): Nombre d'exécutions à réaliser.
+        
+        Returns:
+            bool: True si toutes les exécutions produisent exactement le même état final pour les variables testées,
+                  False sinon.
+        """
+        # Sauvegarder l'état initial des variables à tester
+        etat_initial = {cle: dico_globaux.get(cle) for cle in cles}
+        etats_final = []  # Liste pour stocker l'état final après chaque exécution
+        
+        # Boucle : on exécute le système nb_exec fois
+        for i in range(nb_exec):
+            # Réinitialiser les variables globales à leur état initial
+            for cle, valeur in etat_initial.items():
+                dico_globaux[cle] = valeur
+            # Exécuter le système de tâches (ici en mode parallèle)
+            self.run()
+            # Capturer l'état final des variables spécifiées
+            etat_courant = {cle: dico_globaux.get(cle) for cle in cles}
+            etats_final.append(etat_courant)
+        
+        # Comparer tous les états finaux : si tous sont identiques, le système est déterministe
+        deterministe = all(etat == etats_final[0] for etat in etats_final)
+        return deterministe
+
+
+
