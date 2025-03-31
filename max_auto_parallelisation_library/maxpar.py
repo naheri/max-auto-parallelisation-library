@@ -1,7 +1,6 @@
 import concurrent.futures
 from max_auto_parallelisation_library.validators import TaskSystemValidationError, TaskSystemValidator
-import time
-import copy
+import timeit
 import graphviz
 from pathlib import Path
   
@@ -15,7 +14,7 @@ class Task:
 X = None
 Y = None
 Z = None
-
+# tests
 def runT1():
     global X  
     X = 1
@@ -28,12 +27,6 @@ def runTsomme():
     global X, Y, Z  
     Z = X + Y
 
-class Task:
-    def __init__(self, name="", reads=None, writes=None, run=None):
-        self.name = name
-        self.reads = reads if reads is not None else []
-        self.writes = writes if writes is not None else []
-        self.run = run
 
 class TaskSystem:
     def __init__(self, tasks, precedence):
@@ -73,7 +66,8 @@ class TaskSystem:
             A new TaskSystem with maximum parallelism.
         """
         max_precedence = {task.name: set() for task in self.tasks}
-        
+
+        # Apply Bernstein's conditions to each pair of tasks
         for i, task_i in enumerate(self.tasks):
             for j, task_j in enumerate(self.tasks):
                 if i != j:
@@ -81,23 +75,24 @@ class TaskSystem:
                     writes_i = set(task_i.writes)
                     reads_j = set(task_j.reads)
                     writes_j = set(task_j.writes)
-                    
+
                     condition1 = any(r in writes_j for r in reads_i)
                     condition2 = any(r in writes_i for r in reads_j)
                     condition3 = any(w in writes_j for w in writes_i)
-                    
+
                     conflict = condition1 or condition2 or condition3
-                    
+                    # if there is a conflict, add the dependency
                     if conflict:
                         original_deps = self.getAllDependencies(task_j.name)
                         if task_i.name in original_deps:
                             max_precedence[task_j.name].add(task_i.name)
-        
+
         self._eliminate_redundant_edges(max_precedence)
-        
-        max_system = TaskSystem(tasks=self.tasks.copy(), 
-                              precedence={k: list(v) for k, v in max_precedence.items()})
-        return max_system
+        # return
+        return TaskSystem(
+            tasks=self.tasks.copy(),
+            precedence={k: list(v) for k, v in max_precedence.items()},
+        )
 
     def _eliminate_redundant_edges(self, precedence):
         """
@@ -110,7 +105,6 @@ class TaskSystem:
         for task_name, deps in precedence.items():
             redundant = set()
             for dep in deps:
-                transitive_deps = set()
                 deps_copy = deps.copy()  
                 deps_copy.remove(dep)  
 
@@ -139,7 +133,7 @@ class TaskSystem:
         """
         visited = set()
         queue = [start]
-        
+        # BFS to find if target is reachable from start
         while queue:
             current = queue.pop(0)
             
@@ -162,10 +156,11 @@ class TaskSystem:
         Returns:
             A list of lists, where each sublist contains the names of tasks in a level.
         """
+        # Count the number of dependencies for each task
         remaining_deps = {}
         for task_name, deps in self.precedence.items():
             remaining_deps[task_name] = len(deps)
-        
+        # Find tasks with no dependencies
         ready_tasks = set()
         for task_name in self.precedence:
             if remaining_deps[task_name] == 0:
@@ -176,7 +171,8 @@ class TaskSystem:
             current_level = list(ready_tasks)
             levels.append(current_level)
             ready_tasks.clear()
-            
+            '''for each task, find tasks that depend on it, decrease their dependency count, 
+            if count is 0, add to ready_tasks'''
             for completed_task in current_level:
                 for task_name, deps in self.precedence.items():
                     if completed_task in deps and remaining_deps[task_name] > 0:
@@ -237,11 +233,9 @@ class TaskSystem:
             str: Path to the generated file or None if graphviz is not installed
         """
     
-        # Ensure images directory exists
         images_dir = Path("/Users/naher/Documents/max_auto_parallelisation/images")
         images_dir.mkdir(parents=True, exist_ok=True)
         
-        # Create graph
         dot = graphviz.Digraph(comment='Task System')
         
         # Add nodes
@@ -254,15 +248,13 @@ class TaskSystem:
             for dep in deps:
                 dot.edge(dep, task)
         
-        # Set full output path
         full_path = images_dir / filename
         
-        # Render and save
         output_path = dot.render(filename=str(full_path), format=format, cleanup=True)
         
         print(f"Graph generated at: {output_path}")
         return output_path
-    def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
+    '''def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
         """
         Compares sequential and parallel execution times of the task system.
         
@@ -355,4 +347,39 @@ class TaskSystem:
             "speedup": speedup,
             "sequential_times": seq_times,
             "parallel_times": par_times
+        }'''
+    def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
+        """
+        Compare le temps d'exécution séquentiel (runSeq()) et parallèle (run())
+        en utilisant le module timeit pour une mesure précise.
+        
+        Args:
+            num_runs (int): nombre de répétitions pour la mesure.
+            warmup_runs (int): nombre d'exécutions préliminaires pour stabiliser l'exécution.
+            verbose (bool): si True, affiche les résultats détaillés.
+            
+        Returns:
+            dict: contenant le temps moyen séquentiel, parallèle et le speedup.
+        """
+
+        # warmpup_runs to prepare the cache
+        for _ in range(warmup_runs):
+            self.runSeq()
+            self.run()
+        
+        seq_total_time = timeit.timeit(self.runSeq, number=num_runs)
+        par_total_time = timeit.timeit(self.run, number=num_runs)
+        
+        # calculation of the average time
+        avg_seq = seq_total_time / num_runs
+        avg_par = par_total_time / num_runs
+        
+        if verbose:
+            print("\n===== RÉSULTATS (Alternative timeit) =====")
+            print(f"Temps moyen séquentiel: {avg_seq:.6f} secondes")
+            print(f"Temps moyen parallèle:    {avg_par:.6f} secondes")
+        
+        return {
+            "sequential_mean_time": avg_seq,
+            "parallel_mean_time": avg_par,
         }

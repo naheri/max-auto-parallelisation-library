@@ -44,5 +44,6 @@ MANIFEST
 .env
 
 # Generated images
-/images/*
+/images/
+images/
 /.gitkeep

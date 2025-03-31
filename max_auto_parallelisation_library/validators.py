@@ -109,6 +109,7 @@ class TaskSystemValidator:
         visited = set()
         temp_visited = set()
 
+     
         def detect_cycle(node):
             if node in temp_visited:
                 cycle_path = [node]
