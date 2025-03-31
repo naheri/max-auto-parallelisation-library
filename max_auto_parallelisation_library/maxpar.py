@@ -30,7 +30,7 @@ def runTsomme():
 
 class TaskSystem:
     def __init__(self, tasks, precedence):
-        TaskSystemValidator.validate_system(tasks, precedence)
+        TaskSystemValidator.validate_system(tasks, precedence) # verification of the system at each creation of a system
         self.tasks = tasks
         self.task_map = {task.name: task for task in tasks}
         self.precedence = precedence.copy()
@@ -240,7 +240,7 @@ class TaskSystem:
         
         # Add nodes
         for task in self.tasks:
-            label = f"{task.name}\nReads: {','.join(task.reads)}\nWrites: {','.join(task.writes)}"
+            label = f"{task.name}"
             dot.node(task.name, label)
         
         # Add edges
@@ -349,20 +349,11 @@ class TaskSystem:
             "parallel_times": par_times
         }'''
     def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
-        """
-        Compare le temps d'exécution séquentiel (runSeq()) et parallèle (run())
-        en utilisant le module timeit pour une mesure précise.
-        
-        Args:
-            num_runs (int): nombre de répétitions pour la mesure.
-            warmup_runs (int): nombre d'exécutions préliminaires pour stabiliser l'exécution.
-            verbose (bool): si True, affiche les résultats détaillés.
-            
-        Returns:
-            dict: contenant le temps moyen séquentiel, parallèle et le speedup.
-        """
+        '''
+        Compares sequential and parallel execution times of the task system.
+        '''
 
-        # warmpup_runs to prepare the cache
+        # warmpup_runs to prepare the cache (good practice)
         for _ in range(warmup_runs):
             self.runSeq()
             self.run()
@@ -375,9 +366,9 @@ class TaskSystem:
         avg_par = par_total_time / num_runs
         
         if verbose:
-            print("\n===== RÉSULTATS (Alternative timeit) =====")
-            print(f"Temps moyen séquentiel: {avg_seq:.6f} secondes")
-            print(f"Temps moyen parallèle:    {avg_par:.6f} secondes")
+            print("\n===== RESULTS (Alternative timeit) =====")
+            print(f"Mean execution time (SEQ): {avg_seq:.6f} seconds")
+            print(f"Mean execution time (PAR):   {avg_par:.6f} seconds")
         
         return {
             "sequential_mean_time": avg_seq,

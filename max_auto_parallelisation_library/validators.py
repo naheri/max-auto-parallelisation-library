@@ -11,14 +11,11 @@ class TaskSystemValidator:
     
     @staticmethod
     def validate_system(tasks, precedence):
-        """Valide l'ensemble du système de tâches.
-        
+        """
+        Validate the task system.
         Args:
-            tasks (list[Task]): Liste des tâches à valider
-            precedence (dict): Dictionnaire des relations de précédence
-            
-        Raises:
-            TaskSystemValidationError: Si une des validations échoue
+            tasks (list[Task]): List of tasks to validate
+            precedence (dict): Precedence graph where keys are task names and values are lists of dependencies
         """
         errors = []
         
@@ -39,66 +36,68 @@ class TaskSystemValidator:
             
         if errors:
             raise TaskSystemValidationError(
-                "Validation du système de tâches échouée:\n" + 
+                "Validation of task system => FAILED:\n" + 
                 "\n".join(f"- {error}" for error in errors)
             )
 
     @staticmethod
     def _validate_tasks(tasks):
-        """Valide la liste des tâches.
-        
-        Vérifie les doublons et la validité des attributs de chaque tâche.
+        """
+        Validate the list of tasks.
+        Args:
+            tasks (list[Task]): List of tasks to validate
         """
         if not tasks:
-            raise TaskSystemValidationError("La liste des tâches ne peut pas être vide")
+            raise TaskSystemValidationError("Task list CANNOT be empty")
             
 
         task_names = [task.name for task in tasks]
         duplicates = {name for name in task_names if task_names.count(name) > 1}
         if duplicates:
             raise TaskSystemValidationError(
-                f"Noms de tâches dupliqués détectés: {', '.join(duplicates)}"
+                f"Duplicated tasks name detected: {', '.join(duplicates)}"
             )
             
         # verification of task attributes
         for task in tasks:
             if not task.name:
-                raise TaskSystemValidationError("Une tâche doit avoir un nom")
+                raise TaskSystemValidationError("Each task MUST have a name")
                 
             if not isinstance(task.reads, list):
                 raise TaskSystemValidationError(
-                    f"Les lectures de la tâche {task.name} doivent être une liste"
+                    f"reading domain of {task.name} should be a list"
                 )
                 
             if not isinstance(task.writes, list):
                 raise TaskSystemValidationError(
-                    f"Les écritures de la tâche {task.name} doivent être une liste"
+                    f"write domain of {task.name} should be a list"
                 )
 
     @staticmethod
     def _validate_precedence_graph(tasks, precedence):
-        """Valide le graphe de précédence.
-        
-        Vérifie la cohérence entre les tâches et le graphe de précédence.
+        """      Check the consistency of the precedence graph and tasks.
+        Args:
+            tasks (list[Task]): List of tasks to validate
+            precedence (dict): Precedence graph where keys are task names and values are lists of dependencies
         """
         task_names = {task.name for task in tasks}
         
         missing_in_precedence = task_names - set(precedence.keys())
         if missing_in_precedence:
             raise TaskSystemValidationError(
-                f"Tâches manquantes dans le graphe de précédence: {', '.join(missing_in_precedence)}"
+                f"Missing tasks in precedence graph: {', '.join(missing_in_precedence)}"
             )
             
         for task_name, deps in precedence.items():
             if task_name not in task_names:
                 raise TaskSystemValidationError(
-                    f"Tâche inconnue dans le graphe de précédence: {task_name}"
+                    f"Unknown task in precedence graph : {task_name}"
                 )
                 
             invalid_deps = set(deps) - task_names
             if invalid_deps:
                 raise TaskSystemValidationError(
-                    f"Dépendances invalides pour la tâche {task_name}: {', '.join(invalid_deps)}"
+                    f"Invalid dependencies for {task_name}: {', '.join(invalid_deps)}"
                 )
 
     @staticmethod
@@ -114,7 +113,7 @@ class TaskSystemValidator:
             if node in temp_visited:
                 cycle_path = [node]
                 raise TaskSystemValidationError(
-                    f"Cycle détecté dans le graphe de précédence: {' -> '.join(cycle_path)}"
+                    f"Detected cycle in precedence graph: {' -> '.join(cycle_path)}"
                 )
                 
             if node not in visited:

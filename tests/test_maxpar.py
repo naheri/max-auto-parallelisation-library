@@ -40,9 +40,7 @@ def test_task_system_initialization():
     assert s1.tasks == [t1, t2, tSomme]
     assert s1.precedence == precedence
 def test_validation_empty_tasks():
-    """
-    Tests the validation of an empty task system.
-    """
+    """Test la validation avec une liste de tâches vide"""
     with pytest.raises(TaskSystemValidationError, match="Task list CANNOT be empty"):
         TaskSystem(tasks=[], precedence={"T1": []})
 
