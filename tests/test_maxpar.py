@@ -6,6 +6,7 @@ import threading
 import pytest
 from datetime import datetime
 from max_auto_parallelisation_library.maxpar import Task, runT1, runT2, runTsomme, TaskSystem
+from max_auto_parallelisation_library.validators import TaskSystemValidationError
 
 
 
@@ -38,33 +39,46 @@ def test_task_system_initialization():
     
     assert s1.tasks == [t1, t2, tSomme]
     assert s1.precedence == precedence
-'''def test_validation_empty_tasks():
-    """Test la validation avec une liste de tâches vide"""
-    with pytest.raises(TaskSystemValidationError, match="La liste des tâches ne peut pas être vide"):
+def test_validation_empty_tasks():
+    """
+    Tests the validation of an empty task system.
+    """
+    with pytest.raises(TaskSystemValidationError, match="Task list CANNOT be empty"):
         TaskSystem(tasks=[], precedence={"T1": []})
 
 def test_validation_duplicate_task_names():
-    """Test la validation avec des noms de tâches dupliqués"""
+    """
+    Tests the validation of a task system with duplicate task names.
+    """
     tasks = [
         Task(name="T1", reads=["A"], writes=["B"], run=None),
         Task(name="T1", reads=["C"], writes=["D"], run=None)
     ]
-    with pytest.raises(TaskSystemValidationError, match="Noms de tâches dupliqués détectés: T1"):
+    with pytest.raises(TaskSystemValidationError, match="Duplicated tasks name detected: T1"):
         TaskSystem(tasks=tasks, precedence={"T1": []})
 
 def test_validation_invalid_precedence():
-    """Test la validation avec des dépendances invalides"""
+    """
+    Tests the validation of a task system with invalid precedence.
+    """
     tasks = [
         Task(name="T1", reads=["A"], writes=["B"], run=None)
     ]
     precedence = {
-        "T1": ["T2"]  # T2 n'existe pas
+        "T1": ["T2"]  # T2 doesn't exist, it should raise an error
     }
+    '''
+    The error raised comes from the fact that T2 is not in the tasks list. 
+    Though it tries to access it in the precedence dictionary.
+    Put this function in comment to not see the error.
+    '''
     with pytest.raises(TaskSystemValidationError, match="Dépendances invalides.*T2"):
         TaskSystem(tasks=tasks, precedence=precedence)
 
 def test_validation_cycle_detection():
-    """Test la détection de cycles dans le graphe de précédence"""
+    """
+    Tests the cycle detection in the precedence graph.
+    """
     tasks = [
         Task(name="T1", reads=["A"], writes=["B"], run=None),
         Task(name="T2", reads=["B"], writes=["C"], run=None),
@@ -75,24 +89,28 @@ def test_validation_cycle_detection():
         "T2": ["T1"],
         "T3": ["T2"]
     }
-    with pytest.raises(TaskSystemValidationError, match="Cycle détecté"):
+    with pytest.raises(TaskSystemValidationError, match="Detected cycle in precedence graph"):
         TaskSystem(tasks=tasks, precedence=precedence)
 
 def test_validation_missing_task_in_precedence():
-    """Test la validation quand une tâche est manquante dans le graphe de précédence"""
+    """
+    Tests the validation of a task system with missing tasks in the precedence graph.
+    """
     tasks = [
         Task(name="T1", reads=["A"], writes=["B"], run=None),
         Task(name="T2", reads=["B"], writes=["C"], run=None)
     ]
     precedence = {
         "T1": []
-        # T2 manque dans le graphe de précédence
+        # T2 is missing in the precedence graph
     }
-    with pytest.raises(TaskSystemValidationError, match="Tâches manquantes dans le graphe de précédence: T2"):
+    with pytest.raises(TaskSystemValidationError, match="Missing tasks in precedence graph: T2"):
         TaskSystem(tasks=tasks, precedence=precedence)
 
 def test_validation_valid_system():
-    """Test qu'un système valide passe la validation"""
+    """
+    Tests that a valid task system passes validation without raising an error.
+    """
     tasks = [
         Task(name="T1", reads=["A"], writes=["B"], run=None),
         Task(name="T2", reads=["B"], writes=["C"], run=None)
@@ -104,7 +122,7 @@ def test_validation_valid_system():
     try:
         TaskSystem(tasks=tasks, precedence=precedence)
     except TaskSystemValidationError:
-        pytest.fail("La validation a échoué pour un système valide")'''
+        pytest.fail("Validation failed for a valid task system")
 def test_task_execution():
     """Function to test the execution of tasks in a task system."""
     maxpar.X = None
@@ -148,38 +166,6 @@ def test_task_system_get_all_dependencies():
     dependencies = s1.getAllDependencies("T2")
     assert set(dependencies) == {"T1"}
     
-'''def test_task_system_complex_dependencies():
-    """Test des dépendances complexes avec transitivité."""
-    precedence = {
-        "A": ["B", "C"],
-        "B": ["D"],
-        "C": ["E"],
-        "D": [],
-        "E": []
-    }
-    
-    s1 = TaskSystem(tasks=[], precedence=precedence)
-    
-    # Test des dépendances pour la tâche "A"
-    dependencies = s1.getAllDependencies("A")
-    assert set(dependencies) == {"B", "C", "D", "E"}
-    
-    # Test des dépendances pour la tâche "B"
-    dependencies = s1.getAllDependencies("B")
-    assert set(dependencies) == {"D"}
-    
-    # Test des dépendances pour la tâche "C"
-    dependencies = s1.getAllDependencies("C")
-    assert set(dependencies) == {"E"}
-    
-    # Test des dépendances pour la tâche "D"
-    dependencies = s1.getAllDependencies("D")
-    assert set(dependencies) == set()
-    
-    # Test des dépendances pour la tâche "E"
-    dependencies = s1.getAllDependencies("E")
-    assert set(dependencies) == set()'''
-
 
 def test_create_max_parallel_system():
     """
@@ -228,10 +214,13 @@ def test_create_max_parallel_system():
     actual_precedence_max = {task: set(deps) for task, deps in max_parallel_system.precedence.items()}
     
     assert actual_precedence_max == expected_precedence_max
+
+
 def test_sequential_execution():
     """
-        runSeq() test
-        """
+        runSeq() test, we use datetime.now() instead of timeit
+          because we use the functions one time only
+    """
 
     execution_times = {}
 
@@ -243,7 +232,7 @@ def test_sequential_execution():
         time.sleep(0.1) 
         C = A + B
         execution_times["1"] = datetime.now() - start
-        print(f"[SEQ] Tâche 1 exécutée: C = A + B = {C}")
+        print(f"[SEQ] Task 1 executed: C = A + B = {C}")
         print(f"A : {A}, B : {B}, C : {C}, D : {D}, E : {E}")
 
     def run2():
@@ -252,7 +241,7 @@ def test_sequential_execution():
         time.sleep(0.1)  
         D = A * 2
         execution_times["2"] = datetime.now() - start
-        print(f"[SEQ] Tâche 2 exécutée: D = A * 2 = {D}")
+        print(f"[SEQ] Task 2 executed: D = A * 2 = {D}")
         print(f"A : {A}, B : {B}, C : {C}, D : {D}, E : {E}")
 
     def run3():
@@ -261,7 +250,7 @@ def test_sequential_execution():
         time.sleep(0.1)  
         A = C + D if C is not None and D is not None else 0
         execution_times["3"] = datetime.now() - start
-        print(f"[SEQ] Tâche 3 exécutée: A = C + D = {A}")
+        print(f"[SEQ] Task 3 executed: A = C + D = {A}")
         print(f"A : {A}, B : {B}, C : {C}, D : {D}, E : {E}")
 
     def run4():
@@ -270,7 +259,7 @@ def test_sequential_execution():
         time.sleep(0.1) 
         E = C - D if C is not None and D is not None else 0
         execution_times["4"] = datetime.now() - start
-        print(f"[SEQ] Tâche 4 exécutée: E = C - D = {E}")
+        print(f"[SEQ] Task 4 executed: E = C - D = {E}")
         print(f"A : {A}, B : {B}, C : {C}, D : {D}, E : {E}")
 
     def run5():
@@ -279,7 +268,7 @@ def test_sequential_execution():
         time.sleep(0.1)  
         B = D // 2 if D is not None else 0
         execution_times["5"] = datetime.now() - start
-        print(f"[SEQ] Tâche 5 exécutée: B = D // 2 = {B}")
+        print(f"[SEQ] Task 5 executed: B = D // 2 = {B}")
         print(f"A : {A}, B : {B}, C : {C}, D : {D}, E : {E}")
 
     def run6():
@@ -288,7 +277,7 @@ def test_sequential_execution():
         time.sleep(0.1)  
         E = E * 2 if E is not None else 0
         execution_times["6"] = datetime.now() - start
-        print(f"[SEQ] Tâche 6 exécutée: E = E * 2 = {E}")
+        print(f"[SEQ] Task 6 executed: E = E * 2 = {E}")
         print(f"A : {A}, B : {B}, C : {C}, D : {D}, E : {E}")
 
     def run7():
@@ -303,7 +292,7 @@ def test_sequential_execution():
             D_val = D if D is not None else 0
             D = A_val + B_val + D_val
         execution_times["7"] = datetime.now() - start
-        print(f"[SEQ] Tâche 7 exécutée: D = A + B + D = {D}")
+        print(f"[SEQ] Task 7 executed: D = A + B + D = {D}")
         print(f"A : {A}, B : {B}, C : {C}, D : {D}, E : {E}")
 
     def run8():
@@ -315,7 +304,7 @@ def test_sequential_execution():
         else:
             E = 0  
         execution_times["8"] = datetime.now() - start
-        print(f"[SEQ] Tâche 8 exécutée: E = (A * C) // E = {E}")
+        print(f"[SEQ] Task 8 executed: E = (A * C) // E = {E}")
         print(f"A : {A}, B : {B}, C : {C}, D : {D}, E : {E}")
 
 
@@ -349,40 +338,40 @@ def test_sequential_execution():
 
     system = TaskSystem(tasks=tasks, precedence=precedence)
 
-    print("Système de tâches pour l'exécution séquentielle:")
+    print("Task system for sequential execution:")
     for task, deps in precedence.items():
-        print(f"  {task} dépend de: {deps}")
+        print(f"  {task} depends on: {deps}")
 
 
-    print("\n=== EXÉCUTION SÉQUENTIELLE ===")
+    print("\n=== SEQUENTIAL EXECUTION RESULTS ===")
     start_time = time.time()
     system.runSeq()
     total_time = time.time() - start_time
 
-    print("\n=== RÉSULTATS DE L'EXÉCUTION SÉQUENTIELLE ===")
+    print("\n=== SEQUENTIAL EXECUTION RESULTS ===")
     print(f"A = {A}, B = {B}, C = {C}, D = {D}, E = {E}")
-    print(f"Temps total: {total_time:.4f} secondes")
+    print(f"Total time: {total_time:.4f} seconds")
 
     assert C == 30, "C devrait être égal à A + B = 10 + 20 = 30"
-    assert D is not None, "D ne devrait pas être None après l'exécution"
-    assert E is not None, "E ne devrait pas être None après l'exécution"
+    assert D is not None, "D should not be None after execution"
+    assert E is not None, "E should not be None after execution"
 
-    print("\nTemps d'exécution par tâche:")
+    print("\nExecution time per task:")
     for task_name, duration in execution_times.items():
-        print(f"  Tâche {task_name}: {duration.total_seconds():.4f} secondes")
+        print(f"  Task {task_name}: {duration.total_seconds():.4f} seconds")
 
 def test_parallel_execution():
     """
-    Teste la fonction run() pour vérifier qu'elle exécute 
-    correctement les tâches en parallèle selon le système de parallélisme maximal.
+    Tests run() function to check that it correctly executes tasks in parallel
+      according to the maximum parallelism system.
     """
     
-    # Dictionnaire pour stocker les temps d'exécution
+    # Store execution times
     execution_times = {}
     execution_start_times = {}
     execution_end_times = {}
 
-    # Dictionnaire d'état qui remplacera les variables globales
+    # State variables dictionary to be shared between tasks
     state = {
         'A': 10,
         'B': 15,
@@ -391,11 +380,10 @@ def test_parallel_execution():
         'E': None
     }
 
-    # Mutex pour protéger l'accès au dictionnaire d'état
+    # Mutex (semaphore) to protect shared state
     state_mutex = threading.Lock()
 
-    # Définir des fonctions de tâches qui simulent une charge de travail
-    # et enregistrent leur temps d'exécution
+    # Simulate realistic tasks execution with a delay and record execution time
     def run1():
         execution_start_times["1"] = datetime.now()
         time.sleep(0.1)  
@@ -404,7 +392,7 @@ def test_parallel_execution():
             local_state = state.copy()
             local_state['C'] = local_state['A'] + local_state['B']
             state.update(local_state)
-            print(f"[PAR] Tâche 1 exécutée: C = A + B = {state['C']}")
+            print(f"[PAR] Task 1 executed: C = A + B = {state['C']}")
 
         execution_end_times["1"] = datetime.now()
         execution_times["1"] = execution_end_times["1"] - execution_start_times["1"]
@@ -417,7 +405,7 @@ def test_parallel_execution():
             local_state = state.copy()
             local_state['D'] = local_state['A'] * 2
             state.update(local_state)
-            print(f"[PAR] Tâche 2 exécutée: D = A * 2 = {state['D']}")
+            print(f"[PAR] Task 2 executed: D = A * 2 = {state['D']}")
 
         execution_end_times["2"] = datetime.now()
         execution_times["2"] = execution_end_times["2"] - execution_start_times["2"]
@@ -434,7 +422,7 @@ def test_parallel_execution():
             else:
                 local_state['A'] = 0 
             state.update(local_state)
-            print(f"[PAR] Tâche 3 exécutée: A = C + D = {state['A']}")
+            print(f"[PAR] Task 3 executed: A = C + D = {state['A']}")
 
         execution_end_times["3"] = datetime.now()
         execution_times["3"] = execution_end_times["3"] - execution_start_times["3"]
@@ -450,7 +438,7 @@ def test_parallel_execution():
             else:
                 local_state['E'] = 0  
             state.update(local_state)
-            print(f"[PAR] Tâche 4 exécutée: E = C - D = {state['E']}")
+            print(f"[PAR] Task 4 executed: E = C - D = {state['E']}")
 
         execution_end_times["4"] = datetime.now()
         execution_times["4"] = execution_end_times["4"] - execution_start_times["4"]
@@ -463,7 +451,7 @@ def test_parallel_execution():
             local_state = state.copy()
             local_state['B'] = local_state['D'] // 2 if local_state['D'] is not None else 0
             state.update(local_state)
-            print(f"[PAR] Tâche 5 exécutée: B = D // 2 = {state['B']}")
+            print(f"[PAR] Task 5 executed: B = D // 2 = {state['B']}")
 
         execution_end_times["5"] = datetime.now()
         execution_times["5"] = execution_end_times["5"] - execution_start_times["5"]
@@ -476,7 +464,7 @@ def test_parallel_execution():
             local_state = state.copy()
             local_state['E'] = local_state['E'] * 2 if local_state['E'] is not None else 0
             state.update(local_state)
-            print(f"[PAR] Tâche 6 exécutée: E = E * 2 = {state['E']}")
+            print(f"[PAR] Task 6 executed: E = E * 2 = {state['E']}")
 
         execution_end_times["6"] = datetime.now()
         execution_times["6"] = execution_end_times["6"] - execution_start_times["6"]
@@ -497,7 +485,7 @@ def test_parallel_execution():
                 D_val = local_state['D'] if local_state['D'] is not None else 0
                 local_state['D'] = A_val + B_val + D_val
             state.update(local_state)
-            print(f"[PAR] Tâche 7 exécutée: D = A + B + D = {state['D']}")
+            print(f"[PAR] Task 7 executed: D = A + B + D = {state['D']}")
 
         execution_end_times["7"] = datetime.now()
         execution_times["7"] = execution_end_times["7"] - execution_start_times["7"]
@@ -514,7 +502,7 @@ def test_parallel_execution():
             else:
                 local_state['E'] = 0 
             state.update(local_state)
-            print(f"[PAR] Tâche 8 exécutée: E = (A * C) // E = {state['E']}")
+            print(f"[PAR] Task 8 executed: E = (A * C) // E = {state['E']}")
 
         execution_end_times["8"] = datetime.now()
         execution_times["8"] = execution_end_times["8"] - execution_start_times["8"]
@@ -547,15 +535,15 @@ def test_parallel_execution():
     # convert lists to sets for printing
     max_precedence = {task: set(deps) for task, deps in max_parallel_system.precedence.items()}
 
-    print("Système avec parallélisme maximal:")
+    print("Maxmal parallelism system:")
     for task, deps in max_precedence.items():
-        print(f"  {task} dépend de: {deps}")
+        print(f"  {task} depends on: {deps}")
 
     if hasattr(max_parallel_system, '_compute_execution_levels'):
         execution_levels = max_parallel_system._compute_execution_levels()
-        print("\n=== NIVEAUX D'EXÉCUTION THÉORIQUES (PARALLÈLE) ===")
+        print("\n=== EXECUTION LEVELS (PARALLEL) ===")
         for i, level in enumerate(execution_levels):
-            print(f"Niveau {i+1}: {level}")
+            print(f"Level {i+1}: {level}")
 
     # Suivre l'ordre d'exécution
     execution_order = []
@@ -573,38 +561,38 @@ def test_parallel_execution():
             return result
         return tracking_function
 
-    # Remplacer les fonctions d'origine par nos fonctions de suivi
+    # replace origin function with tracking function
     for task in tasks:
         original_task_run[task.name] = task.run
         task_obj = max_parallel_system.task_map.get(task.name)
         if task_obj:
             task_obj.run = create_tracking_function(task.name, original_task_run[task.name])
 
-    print("\n=== EXÉCUTION PARALLÈLE ===")
+    print("\n=== PARALLEL EXECUTION ===")
     start_time = time.time()
     max_parallel_system.run()
     total_time = time.time() - start_time
 
-    print("\n=== ORDRE D'EXÉCUTION OBSERVÉ (PARALLÈLE) ===")
+    print("\n=== OBSERVED EXECUTION ORDER (PARALLEL) ===")
     for i, task_name in enumerate(execution_order):
         print(f"{i+1}. Tâche {task_name}")
 
 
-    print("\n=== RÉSULTATS DE L'EXÉCUTION PARALLÈLE ===")
+    print("\n=== PARALLEL EXECUTION RESULTS ===")
     print(f"A = {state['A']}, B = {state['B']}, C = {state['C']}, D = {state['D']}, E = {state['E']}")
-    print(f"Temps total: {total_time:.4f} secondes")
+    print(f"Total time: {total_time:.4f} seconds")
 
 
-    assert state['C'] == 25, f"C devrait être égal à A + B = 10 + 15 = 25, mais était {state['C']}"
-    assert state['D'] is not None, "D ne devrait pas être None après l'exécution"
-    assert state['E'] is not None, "E ne devrait pas être None après l'exécution"
+    assert state['C'] == 25, f"C should be 25, but was {state['C']}"
+    assert state['D'] is not None, "D should not be None after execution"
+    assert state['E'] is not None, "E should not be None after execution"
 
     # execution time
-    print("\nTemps d'exécution par tâche:")
+    print("\nExecution time per task :")
     for task_name, duration in execution_times.items():
-        print(f"  Tâche {task_name}: {duration.total_seconds():.4f} secondes")
+        print(f"  Task {task_name}: {duration.total_seconds():.4f} seconds")
 
-    print("\nAnalyse du parallélisme:")
+    print("\nParallelism analysis:")
     parallel_tasks = []
 
     for i in range(1, 9):
@@ -621,10 +609,10 @@ def test_parallel_execution():
 
                 if (start_i <= end_j and start_j <= end_i):
                     parallel_tasks.append((task_i, task_j))
-                    print(f"  Les tâches {task_i} et {task_j} se sont exécutées en parallèle!")
+                    print(f"  Tasks {task_i} and {task_j} were executed in parallel !")
 
 
-    assert parallel_tasks, "Aucune tâche ne s'est exécutée en parallèle!"
+    assert parallel_tasks, "No tasks were executed in parallel !"
 def test_draw_method():
     """Tests the visualization of task system."""
     import os
@@ -735,9 +723,9 @@ def test_parcost_performance():
     system_parallel = TaskSystem(tasks=tasks_parallel, precedence=precedence_parallel)
     system_sequential = TaskSystem(tasks=tasks_sequential, precedence=precedence_sequential)
 
-    print("\n===== TEST AVEC SYSTÈME PARALLÉLISABLE =====")
+    print("\n===== TEST WITH PARALLELIZED SYSTEM =====")
     results_parallel = system_parallel.parCost(num_runs=3, warmup_runs=1, verbose=True)
 
-    print("\n===== TEST AVEC SYSTÈME SÉQUENTIEL =====")
+    print("\n===== TEST WITH SEQUENTIAL SYSTEM =====")
     results_sequential = system_sequential.parCost(num_runs=3, warmup_runs=1, verbose=True)
 
