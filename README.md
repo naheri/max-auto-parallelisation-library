@@ -2,7 +2,7 @@
 
 An intelligent Python library for automatic task parallelization with dependency management and performance optimization.
 
-![Task System Example](docs/images/task_system.png)
+![Task System Example]('/Users/naher/Downloads/screens_CleanShotX/CleanShot 2025-04-02 at 19.15.28@2x.png')
 
 ## 🎯 Overview
 
