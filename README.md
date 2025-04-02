@@ -1,146 +1,169 @@
-# Max Auto Parallelisation
+# Max Auto Parallelisation Library
 
 An intelligent Python library for automatic task parallelization with dependency management and performance optimization.
 
-![Task System Example](docs/images/CleanShot%202025-04-02%20at%2019.15.28@2x.png)
+![Task System Example](images/task_system_max_parallel.png)
 
-## 🎯 Overview
+## Overview
 
-Max Auto Parallelisation helps you optimize task execution by automatically identifying and managing parallel execution opportunities while respecting task dependencies.
+Max Auto Parallelisation Library automatically optimizes task execution by:
+- Detecting and removing redundant dependencies
+- Maximizing parallel execution opportunities
+- Ensuring thread-safe execution
+- Providing real-time performance metrics
 
-### Key Features
-- Automatic parallelization detection
-- Dependency validation and cycle detection
-- Performance measurement and optimization
-- Visual task graph generation
-- Interactive task system creation
-
-## 🚀 Installation
+## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/max_auto_parallelisation.git
-cd max_auto_parallelisation
-
-# Install dependencies
+pip install max_auto_parallelisation_library
+```
+run 
+```bash
 pip install -r requirements.txt
 ```
+to install all the needed dependencies.
+## Quick Start
 
-## 📋 Requirements
-- Python 3.7+
-- graphviz (optional, for visualization)
-- pytest (for testing)
-
-## 💡 Usage
-
-### Interactive Task Creation
-```bash
-python max_auto_parallelisation_library/input.py
-```
-
-### Programmatic Usage
 ```python
-from max_auto_parallelisation_library.maxpar import Task, TaskSystem
+from max_auto_parallelisation_library import Task, TaskSystem
 
 # Define tasks
-task1 = Task(name="T1", reads=["A"], writes=["B"], run=lambda: print("Task 1"))
-task2 = Task(name="T2", reads=["B"], writes=["C"], run=lambda: print("Task 2"))
+tasks = [
+    Task("data_load", writes=["raw_data"], run=load_data),
+    Task("process", reads=["raw_data"], writes=["processed"], run=process_data),
+    Task("analyze", reads=["processed"], writes=["results"], run=analyze_data)
+]
 
 # Define dependencies
 precedence = {
-    "T1": [],
-    "T2": ["T1"]
+    "data_load": [],
+    "process": ["data_load"],
+    "analyze": ["process"]
 }
 
 # Create and run system
-system = TaskSystem(tasks=[task1, task2], precedence=precedence)
-system.run()
+system = TaskSystem(tasks=tasks, precedence=precedence)
+system.run()  # Executes tasks in parallel where possible
 ```
 
-## 🧪 Testing
+## Key Features
 
-The project includes comprehensive tests. To run them:
+### 1. Automatic Dependency Optimization
+- Detects and removes redundant dependencies
+- Maximizes potential parallelism
+- Validates dependency graph integrity
 
-```bash
-# Run all tests
-pytest tests/
+### 2. Thread-Safe Execution
+- Manages concurrent access to shared resources
+- Ensures data consistency
+- Handles task synchronization
 
-# Run with verbose output
-pytest -v tests/
-
-# Run specific test file
-pytest tests/test_maxpar.py -v
-
-# Run with coverage report
-pytest --cov=max_auto_parallelisation_library tests/
-```
-
-### Test Output Example
-```
-============================= test session starts ==============================
-collecting ... collected 8 items
-
-tests/test_maxpar.py::test_task_initialization PASSED                  [ 12%]
-tests/test_maxpar.py::test_task_system_initialization PASSED          [ 25%]
-...
-```
-
-## 📊 Performance Analysis
-
-The library includes built-in performance analysis:
+### 3. Performance Analysis
 ```python
-results = system.parCost(num_runs=3, warmup_runs=1)
-print(f"Speedup achieved: {results['speedup']}x")
+# Measure and compare sequential vs parallel performance
+results = system.parCost(num_runs=5, warmup_runs=2)
+print(f"Speedup: {results['speedup']}x")
+print(f"Improvement: {results['improvement_percentage']}%")
 ```
 
-![Performance Comparison](docs/images/performance.png)
+### 4. Visual Task Graph Generation
+```python
+# Generate visualization of task dependencies
+system.draw("task_system")  # Requires graphviz
+```
 
-## 🔍 Use Cases
+## Use Cases
 
 ### 1. Data Processing Pipelines
 ```python
-# Example: ETL Pipeline
-extract_task = Task(name="extract", writes=["raw_data"])
-transform_task = Task(name="transform", reads=["raw_data"], writes=["processed_data"])
-load_task = Task(name="load", reads=["processed_data"])
+tasks = [
+    Task("extract", writes=["raw_data"]),
+    Task("clean", reads=["raw_data"], writes=["clean_data"]),
+    Task("transform", reads=["clean_data"], writes=["transformed"]),
+    Task("load", reads=["transformed"], writes=["database"])
+]
 ```
 
-### 2. Build Systems
-- Compiling multiple source files
-- Asset generation
-- Documentation building
+### 2. Scientific Computing
+```python
+tasks = [
+    Task("matrix_mult_1", reads=["A", "B"], writes=["C1"]),
+    Task("matrix_mult_2", reads=["B", "D"], writes=["C2"]),
+    Task("combine", reads=["C1", "C2"], writes=["result"])
+]
+```
 
-### 3. Scientific Computing
-- Matrix operations
-- Image processing
-- Simulation calculations
+### 3. Build Systems
+```python
+tasks = [
+    Task("compile_frontend", writes=["dist/frontend"]),
+    Task("compile_backend", writes=["dist/backend"]),
+    Task("run_tests", reads=["dist/frontend", "dist/backend"]),
+    Task("deploy", reads=["dist/frontend", "dist/backend"])
+]
+```
 
-## 🛠 Contributing
+## API Reference
+
+### Task Class
+```python
+Task(
+    name: str,             # Unique task identifier
+    reads: List[str] = [], # Resources read by task
+    writes: List[str] = [], # Resources written by task
+    run: Callable = None   # Task execution function
+)
+```
+
+### TaskSystem Class
+```python
+TaskSystem(
+    tasks: List[Task],     # List of tasks
+    precedence: Dict[str, List[str]]  # Dependency graph
+)
+```
+
+## Performance Considerations
+
+- Use `parCost()` to measure potential speedup
+- Consider task granularity
+- Avoid too fine-grained tasks
+- Balance parallelism with overhead
+
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch
-3. Run tests before committing:
+3. Install development dependencies:
+```bash
+pip install -e ".[dev]"
+```
+4. Run tests:
 ```bash
 pytest tests/ -v
 ```
-4. Submit a pull request
+5. Submit a pull request
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
-## 🤝 Support
+## Authors
 
-- Report issues on GitHub
-- Join our community discussions
-- Check documentation for detailed API reference
+- AHAMADA Naheri
+- GHALEM Oualid
 
-## 🌟 Acknowledgments
+## Citation
 
-- Built with Python's concurrent.futures
-- Visualization powered by graphviz
-- Testing framework: pytest
+If you use this library in your research, please cite:
 
+```bibtex
+@software{max_auto_parallelisation,
+  author = {AHAMADA, Naheri and GHALEM, Oualid},
+  title = {Max Auto Parallelisation Library},
+  year = {2025},
+  url = {https://github.com/naheri/max-auto-parallelisation-library}
+}
+```
+Thanks to our teacher Sergiu IVANOV
 ---
-
-**Note**: Remember to replace images paths with actual screenshots from your test runs and system visualizations.
