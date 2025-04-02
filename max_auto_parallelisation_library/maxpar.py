@@ -35,7 +35,6 @@ class TaskSystem:
         self.task_map = {task.name: task for task in tasks}
         self.precedence = precedence.copy()
 
-<<<<<<< HEAD
     def getAllDependencies(self, task_name):
         """
         Returns all dependencies of a task (direct and transitive).
@@ -257,9 +256,10 @@ class TaskSystem:
     def parCost(self, num_runs=5, warmup_runs=2, verbose=True):
         '''
         Compares sequential and parallel execution times of the task system.
+        Returns execution times and speedup metrics.
         '''
 
-        # warmpup_runs to prepare the cache (good practice)
+        # warmup_runs to prepare the cache (good practice)
         for _ in range(warmup_runs):
             self.runSeq()
             self.run()
@@ -271,18 +271,20 @@ class TaskSystem:
         avg_seq = seq_total_time / num_runs
         avg_par = par_total_time / num_runs
         
+        # calculate speedup
+        speedup = avg_seq / avg_par if avg_par > 0 else float('inf')
+        
         if verbose:
-            print("\n===== RESULTS (Alternative timeit) =====")
+            print("\n===== PERFORMANCE ANALYSIS =====")
             print(f"Mean execution time (SEQ): {avg_seq:.6f} seconds")
-            print(f"Mean execution time (PAR):   {avg_par:.6f} seconds")
+            print(f"Mean execution time (PAR): {avg_par:.6f} seconds")
+            print(f"Speedup: {speedup:.2f}x")
+            if speedup > 1:
+                print(f"Performance improvement: {((speedup - 1) * 100):.1f}%")
         
         return {
             "sequential_mean_time": avg_seq,
             "parallel_mean_time": avg_par,
+            "speedup": speedup,
+            "improvement_percentage": ((speedup - 1) * 100) if speedup > 1 else 0
         }
-=======
-
-
-
-        
->>>>>>> main

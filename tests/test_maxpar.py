@@ -725,4 +725,8 @@ def test_parcost_performance():
 
     print("\n===== TEST WITH SEQUENTIAL SYSTEM =====")
     results_sequential = system_sequential.parCost(num_runs=3, warmup_runs=1, verbose=True)
+    # print speedup
+    speedup = results_sequential["speedup"] / results_parallel["speedup"]
+    print(f"Speedup achieved: {speedup:.2f}x")
+    
 
