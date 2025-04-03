@@ -2,7 +2,9 @@
 
 A Python library for **automated maximum parallelization** of task systems — designed to simplify concurrent programming and optimize execution time.
 
-![Task Graph Example](images/task_system_max_parallel.png)
+<p align="center">
+  <img src="images/task_system_max_parallel.png" width="70%" alt="Task System Example">
+</p>
 
 ---
 
