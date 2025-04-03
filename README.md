@@ -20,3 +20,5 @@ An intelligent Python library for automatic task parallelization with dependency
 
 ```bash
 pip install max_auto_parallelisation_library
+or install all dependencies:
+pip install -r requirements.txt
