@@ -23,6 +23,6 @@ Install from PyPI:
 pip install max_auto_parallelisation_library
 or manually install dependencies with:
 pip install -r requirements.txt
-```
 
-##⚡ Quick Start
+
+## 📦 Insta
