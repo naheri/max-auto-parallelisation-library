@@ -1,170 +1,170 @@
-Max Auto Parallelisation Library
+# ⚙️ Max Auto Parallelisation Library
 
 An intelligent Python library for automatic task parallelization with dependency management and performance optimization.
 
+![Task System Example](images/task_system_max_parallel.png)
 
+---
 
-🔍 Overview
+## 📘 Overview
 
-Max Auto Parallelisation Library helps you optimize task execution by:
+**Max Auto Parallelisation Library** helps optimize task execution by:
+- 🔍 Detecting and removing redundant dependencies
+- 🧵 Enabling maximum parallel execution
+- 🔐 Ensuring thread-safe execution
+- 📊 Providing real-time performance metrics
 
-✅ Detecting and removing redundant dependencies
+---
 
-⏳ Maximizing parallel execution opportunities
+## 🚀 Installation
 
-⚖️ Ensuring thread-safe execution
-
-⌛ Providing real-time performance metrics
-
-⚡ Installation
-
+```bash
 pip install max_auto_parallelisation_library
+or to install all dependencies:
 
-Or install all dependencies:
-
+bash
+Copier
+Modifier
 pip install -r requirements.txt
-
-✨ Quick Start
-
+🧪 Quick Start
+python
+Copier
+Modifier
 from max_auto_parallelisation_library import Task, TaskSystem
 
 def load_data():
-    # code to load data
     pass
 
 def process_data():
-    # code to process data
     pass
 
 def analyze_data():
-    # code to analyze data
     pass
 
+# Define tasks
 tasks = [
     Task("data_load", writes=["raw_data"], run=load_data),
     Task("process", reads=["raw_data"], writes=["processed"], run=process_data),
     Task("analyze", reads=["processed"], writes=["results"], run=analyze_data)
 ]
 
+# Define dependencies
 precedence = {
     "data_load": [],
     "process": ["data_load"],
     "analyze": ["process"]
 }
 
+# Create and run the task system
 system = TaskSystem(tasks=tasks, precedence=precedence)
 system.run()
+🛠️ Features
+1. Automatic Dependency Optimization
+Detects and removes unnecessary dependencies
 
-📊 Key Features
+Constructs a maximal parallelism task graph
 
-🔄 Automatic Dependency Optimization
-
-Identifies unnecessary task constraints
-
-Builds maximum parallelism safely
-
-Validates user-specified graphs
-
-🔑 Thread-Safe Execution
-
+2. Thread-Safe Execution
 Prevents race conditions
 
-Uses shared resource protection
+Ensures safe resource access
 
-Reliable under concurrency
-
-⏲️ Performance Analysis
-
+3. Performance Analysis
+python
+Copier
+Modifier
 results = system.parCost(num_runs=5, warmup_runs=2)
 print(f"Speedup: {results['speedup']}x")
-print(f"Improvement: {results['improvement_percentage']}%")
-
-🎭 Visual Graph Drawing
-
-system.draw("task_system")  # requires Graphviz
-
-📂 Use Cases
-
-Data Engineering Pipelines
-
+4. Visual Task Graph Generation
+python
+Copier
+Modifier
+system.draw("task_system")  # Requires Graphviz installed
+🔍 Use Cases
+✔️ Data Pipelines
+python
+Copier
+Modifier
 Task("extract", writes=["raw"]),
-Task("clean", reads=["raw"], writes=["cleaned"]),
-Task("transform", reads=["cleaned"], writes=["transformed"]),
-Task("load", reads=["transformed"], writes=["db"])
-
-Scientific Computing
-
-Task("A_x_B", reads=["A", "B"], writes=["AB"]),
-Task("B_x_D", reads=["B", "D"], writes=["BD"]),
-Task("combine", reads=["AB", "BD"], writes=["Result"])
-
-Build & Deploy
-
-Task("compile_frontend", writes=["dist/frontend"]),
-Task("compile_backend", writes=["dist/backend"]),
-Task("test", reads=["dist/frontend", "dist/backend"]),
-Task("deploy", reads=["dist/frontend", "dist/backend"])
-
-🔍 API Reference
-
+Task("clean", reads=["raw"], writes=["clean"]),
+Task("transform", reads=["clean"], writes=["final"]),
+Task("load", reads=["final"], writes=["db"])
+✔️ Scientific Simulations
+python
+Copier
+Modifier
+Task("simulate", writes=["results"]),
+Task("analyze", reads=["results"], writes=["summary"])
+✔️ Build Systems
+python
+Copier
+Modifier
+Task("compile", writes=["bin"]),
+Task("test", reads=["bin"]),
+Task("deploy", reads=["bin"])
+📚 API Reference
 Task Class
-
+python
+Copier
+Modifier
 Task(
-  name: str,
-  reads: List[str] = [],
-  writes: List[str] = [],
-  run: Callable = None
+    name: str,
+    reads: List[str] = [],
+    writes: List[str] = [],
+    run: Callable = None
 )
-
 TaskSystem Class
-
+python
+Copier
+Modifier
 TaskSystem(
-  tasks: List[Task],
-  precedence: Dict[str, List[str]]
+    tasks: List[Task],
+    precedence: Dict[str, List[str]]
 )
+⏱️ Performance Tips
+Use parCost() to compare sequential vs parallel speed
 
-⏱ Performance Considerations
+Prefer balanced task granularity
 
-Use parCost() to evaluate benefits of parallel execution
+Avoid unnecessary interdependencies
 
-Balance between too many fine-grained tasks and coarse ones
+👨‍💻 Contributing
+Fork the repository
 
-Consider I/O vs CPU-bound operations
+Create a new branch
 
-♻️ Contributing
+Install dev dependencies
 
-Fork this repo
-
-Create a branch: git checkout -b feature-name
-
-Install dev dependencies:
-
+bash
+Copier
+Modifier
 pip install -e ".[dev]"
+Run tests
 
-Run tests:
-
+bash
+Copier
+Modifier
 pytest tests/ -v
+Submit a Pull Request 🚀
 
-Submit a PR 📈
+📄 License
+MIT License – see LICENSE for more.
 
-📃 License
-
-MIT License. See LICENSE.
-
-👤 Authors
-
+👥 Authors
 AHAMADA Naheri
 
 GHALEM Oualid
 
-Thanks to our teacher Sergiu Ivanov (Université d'Évry) 🎓
+Special thanks to our professor Sergiu IVANOV
+Université d'Évry / Université Paris-Saclay
 
-📄 Citation
-
+📖 Citation
+bibtex
+Copier
+Modifier
 @software{max_auto_parallelisation,
   author = {AHAMADA, Naheri and GHALEM, Oualid},
   title = {Max Auto Parallelisation Library},
   year = {2025},
   url = {https://github.com/Oualidu/max-auto-parallelisation-library}
 }
-
