@@ -1,13 +1,27 @@
-📌 Citation
-If you use this library in your research, please cite:
+# Max Auto Parallelisation Library
 
-bibtex
-Copier
-Modifier
-@software{max_auto_parallelisation,
-  author = {AHAMADA, Naheri and GHALEM, Oualid},
-  title = {Max Auto Parallelisation Library},
-  year = {2025},
-  url = {https://github.com/naheri/max-auto-parallelisation-library}
-}
-🙏 Special thanks to our teacher Sergiu IVANOV.
+An intelligent Python library for automatic task parallelization with dependency management and performance optimization.
+
+![Task System Example](images/task_system_max_parallel.png)
+
+## 🚀 Overview
+
+Max Auto Parallelisation Library automatically optimizes task execution by:
+
+- ✅ **Detecting and removing** redundant dependencies
+- ✅ **Maximizing** parallel execution opportunities
+- ✅ **Ensuring** thread-safe execution
+- ✅ **Providing** real-time performance metrics
+
+---
+
+## 📦 Installation
+
+Install from PyPI:
+
+```bash
+pip install max_auto_parallelisation_library
+or manually install dependencies with:
+```bash
+pip install -r requirements.txt
+```
