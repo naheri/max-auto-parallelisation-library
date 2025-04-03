@@ -5,7 +5,7 @@ A Python library for **automated maximum parallelization** of task systems — d
 <p align="center">
   <img src="images/task_system_max_parallel.png" width="70%" alt="Task System Example">
 </p>
-![alt tag](https://github.com/naheri/max-auto-parallelisation-library/issues/1)
+![alt tag](https://private-user-images.githubusercontent.com/203723579/429864920-a40b358c-1538-427a-879e-c711387eda34.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDM2NzEyMjMsIm5iZiI6MTc0MzY3MDkyMywicGF0aCI6Ii8yMDM3MjM1NzkvNDI5ODY0OTIwLWE0MGIzNThjLTE1MzgtNDI3YS04NzllLWM3MTEzODdlZGEzNC5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUwNDAzJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MDQwM1QwOTAyMDNaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT03ODQwYTdjOThlOTQ0ZGNjNTZlNzQyYzY3YmY2YjgxZWY1YWZjYWIwZjhlNDIzOTkxZTc1YWZjYTkwMjgzYzA2JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.-B8SDX-OwZxu1vE0hYZPEaE9CtDu1ASxqO9hd-MGYa8)
 ---
 
 
