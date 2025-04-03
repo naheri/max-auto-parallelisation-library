@@ -63,6 +63,14 @@ system.run()  # Or system.runSeq()
 - Removes redundant dependencies
 - Optimizes execution order for concurrency
 
+
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e6224e0a-b941-4641-aca2-f456624135ec" width="70%" alt="Task System Max Parallel">
+</p>
+
+
+
 ### 🔄 Execution Modes
 - `runSeq()`: Sequential execution
 - `run()`: Parallel execution (with thread-safety)
