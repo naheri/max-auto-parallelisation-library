@@ -1,80 +1,170 @@
-# Max Auto Parallelisation Library 🧠⚙️
+Max Auto Parallelisation Library
 
-A Python library for **automated maximum parallelization** of task systems — designed to simplify concurrent programming and optimize execution time.
+An intelligent Python library for automatic task parallelization with dependency management and performance optimization.
 
-![Task Graph Example](images/task_system_max_parallel.png)
 
-## 🔍 Overview
 
-This library enables:
-- ⚡ Automatic detection and elimination of unnecessary dependencies
-- 🚀 Maximized parallel task execution
-- 🔐 Thread-safe and deterministic execution
-- 📊 Benchmarking and performance analysis
-- 🧩 Graph visualization of task dependencies
+🔍 Overview
 
-## 📦 Installation
+Max Auto Parallelisation Library helps you optimize task execution by:
 
-```bash
+✅ Detecting and removing redundant dependencies
+
+⏳ Maximizing parallel execution opportunities
+
+⚖️ Ensuring thread-safe execution
+
+⌛ Providing real-time performance metrics
+
+⚡ Installation
+
 pip install max_auto_parallelisation_library
-# or install dependencies manually
+
+Or install all dependencies:
+
 pip install -r requirements.txt
-🚀 Quick Start
-python
-Copier
-Modifier
+
+✨ Quick Start
+
 from max_auto_parallelisation_library import Task, TaskSystem
 
+def load_data():
+    # code to load data
+    pass
+
+def process_data():
+    # code to process data
+    pass
+
+def analyze_data():
+    # code to analyze data
+    pass
+
 tasks = [
-    Task("T1", writes=["X"], run=lambda: print("T1")),
-    Task("T2", reads=["X"], writes=["Y"], run=lambda: print("T2")),
-    Task("T3", reads=["Y"], run=lambda: print("T3"))
+    Task("data_load", writes=["raw_data"], run=load_data),
+    Task("process", reads=["raw_data"], writes=["processed"], run=process_data),
+    Task("analyze", reads=["processed"], writes=["results"], run=analyze_data)
 ]
 
 precedence = {
-    "T1": [],
-    "T2": ["T1"],
-    "T3": ["T2"]
+    "data_load": [],
+    "process": ["data_load"],
+    "analyze": ["process"]
 }
 
-system = TaskSystem(tasks, precedence)
-system.run()  # Or system.runSeq()
-✨ Key Features
-✅ Maximal Parallelism with automatic graph optimization
+system = TaskSystem(tasks=tasks, precedence=precedence)
+system.run()
 
-🔄 Sequential and Parallel Execution
+📊 Key Features
 
-📈 Execution Cost Analysis with parCost()
+🔄 Automatic Dependency Optimization
 
-🔬 Determinism Testing with detTestRnd()
+Identifies unnecessary task constraints
 
-🎯 Graph Visualization (requires Graphviz)
+Builds maximum parallelism safely
 
-🧪 Use Cases
-Data processing pipelines
+Validates user-specified graphs
 
-Scientific computations
+🔑 Thread-Safe Execution
 
-Build systems automation
+Prevents race conditions
 
-👨‍💻 Developers
+Uses shared resource protection
+
+Reliable under concurrency
+
+⏲️ Performance Analysis
+
+results = system.parCost(num_runs=5, warmup_runs=2)
+print(f"Speedup: {results['speedup']}x")
+print(f"Improvement: {results['improvement_percentage']}%")
+
+🎭 Visual Graph Drawing
+
+system.draw("task_system")  # requires Graphviz
+
+📂 Use Cases
+
+Data Engineering Pipelines
+
+Task("extract", writes=["raw"]),
+Task("clean", reads=["raw"], writes=["cleaned"]),
+Task("transform", reads=["cleaned"], writes=["transformed"]),
+Task("load", reads=["transformed"], writes=["db"])
+
+Scientific Computing
+
+Task("A_x_B", reads=["A", "B"], writes=["AB"]),
+Task("B_x_D", reads=["B", "D"], writes=["BD"]),
+Task("combine", reads=["AB", "BD"], writes=["Result"])
+
+Build & Deploy
+
+Task("compile_frontend", writes=["dist/frontend"]),
+Task("compile_backend", writes=["dist/backend"]),
+Task("test", reads=["dist/frontend", "dist/backend"]),
+Task("deploy", reads=["dist/frontend", "dist/backend"])
+
+🔍 API Reference
+
+Task Class
+
+Task(
+  name: str,
+  reads: List[str] = [],
+  writes: List[str] = [],
+  run: Callable = None
+)
+
+TaskSystem Class
+
+TaskSystem(
+  tasks: List[Task],
+  precedence: Dict[str, List[str]]
+)
+
+⏱ Performance Considerations
+
+Use parCost() to evaluate benefits of parallel execution
+
+Balance between too many fine-grained tasks and coarse ones
+
+Consider I/O vs CPU-bound operations
+
+♻️ Contributing
+
+Fork this repo
+
+Create a branch: git checkout -b feature-name
+
+Install dev dependencies:
+
+pip install -e ".[dev]"
+
+Run tests:
+
+pytest tests/ -v
+
+Submit a PR 📈
+
+📃 License
+
+MIT License. See LICENSE.
+
+👤 Authors
+
 AHAMADA Naheri
 
 GHALEM Oualid
 
-Special thanks to Sergiu Ivanov (Université d'Évry).
+Thanks to our teacher Sergiu Ivanov (Université d'Évry) 🎓
 
+📄 Citation
 
-📝 License
-MIT License — see LICENSE
-
-📚 Citation
-bibtex
-Copier
-Modifier
 @software{max_auto_parallelisation,
   author = {AHAMADA, Naheri and GHALEM, Oualid},
   title = {Max Auto Parallelisation Library},
   year = {2025},
-  url = {https://github.com/naheri/max-auto-parallelisation-library}
+  url = {https://github.com/Oualidu/max-auto-parallelisation-library}
 }
+
