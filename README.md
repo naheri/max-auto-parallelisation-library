@@ -5,8 +5,9 @@ A Python library for **automated maximum parallelization** of task systems — d
 <p align="center">
   <img src="images/task_system_max_parallel.png" width="70%" alt="Task System Example">
 </p>
-
+![alt tag](https://github.com/naheri/max-auto-parallelisation-library/issues/1)
 ---
+
 
 ## 🔍 Overview
 
