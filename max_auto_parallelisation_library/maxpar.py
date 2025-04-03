@@ -38,7 +38,7 @@ class TaskSystem:
     def getAllDependencies(self, task_name):
         """
         Returns all dependencies of a task (direct and transitive).
-        
+    
         Args:
             task_name: The name of the task for which to get dependencies.
             
@@ -120,7 +120,7 @@ class TaskSystem:
 
     def _is_transitively_dependent(self, start, target, precedence):
         """
-        Checks if target is reachable from start via transitive dependencies.
+        Checks if target is reachable from start via transitive dependencies using BFS.
         
         Args:
             start: The name of the starting task.
