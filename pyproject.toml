@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "max_auto_parallelisation_library"
+version = "0.1.0"
+authors = [
+  { name="AHAMADA Naheri", email="naheriahamada@gmail.com" },
+  { name="GHALEM Oualid", email="oualid.ghalem@gmail.com" }
+]
+description = "Automatic task parallelization with dependency management"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/naheri/max-auto-parallelisation-library"
+"Bug Tracker" = "https://github.com/naheri/max-auto-parallelisation-library/issues"
