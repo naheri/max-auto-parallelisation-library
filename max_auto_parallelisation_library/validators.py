@@ -1,12 +1,12 @@
 class TaskSystemValidationError(Exception):
-    """Exception personnalisée pour les erreurs de validation du système de tâches."""
+    """Personalised exception for task system validation errors."""
     pass
 
 class TaskSystemValidator:
-    """Validateur pour les systèmes de tâches.
+    """Validator for task system.
     
-    Cette classe fournit des méthodes de validation pour vérifier l'intégrité
-    et la cohérence d'un système de tâches avant sa construction.
+    This class is used to validate the integrity and consistency of a task system
+    before its construction.
     """
     
     @staticmethod
