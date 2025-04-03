@@ -3,8 +3,7 @@
 A Python library for **automated maximum parallelization** of task systems — designed to simplify concurrent programming and optimize execution time.
 
 
-![Image](https://github.com/user-attachments/assets/e6224e0a-b941-4641-aca2-f456624135ec)
-
+             ![Image](https://github.com/user-attachments/assets/ca6b8d3a-cd76-4a9e-b245-e5366bd89ea6)
 
 
 ## 🔍 Overview
